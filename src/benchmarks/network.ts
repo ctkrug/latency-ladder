@@ -6,8 +6,8 @@ const TRIALS = 15;
 const PROBE_PATH = "./favicon.svg";
 
 /** Round-trips a tiny same-origin request `TRIALS` times and returns the
- * trimmed-mean latency in nanoseconds. */
-export async function benchmarkNetwork(): Promise<number> {
+ * raw per-trial latencies in nanoseconds, before outlier trimming. */
+export async function sampleNetwork(): Promise<number[]> {
   const samplesNs: number[] = [];
 
   for (let i = 0; i < TRIALS; i++) {
@@ -17,5 +17,9 @@ export async function benchmarkNetwork(): Promise<number> {
     samplesNs.push((performance.now() - start) * 1_000_000);
   }
 
-  return trimmedMean(samplesNs);
+  return samplesNs;
+}
+
+export async function benchmarkNetwork(): Promise<number> {
+  return trimmedMean(await sampleNetwork());
 }

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { benchmarkNetwork } from "../src/benchmarks/network";
+import { benchmarkNetwork, sampleNetwork } from "../src/benchmarks/network";
 
 describe("benchmarkNetwork", () => {
   afterEach(() => {
@@ -30,5 +30,17 @@ describe("benchmarkNetwork", () => {
     );
 
     await expect(benchmarkNetwork()).rejects.toThrow("network offline");
+  });
+
+  it("sampleNetwork returns one raw sample per trial", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => Promise.resolve(new Response(null, { status: 200 }))),
+    );
+
+    const samples = await sampleNetwork();
+
+    expect(samples.length).toBeGreaterThan(0);
+    samples.forEach((s) => expect(Number.isFinite(s)).toBe(true));
   });
 });
