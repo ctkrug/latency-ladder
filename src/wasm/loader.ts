@@ -22,6 +22,10 @@ const imports = {
 };
 
 export async function loadKernel(): Promise<KernelExports> {
+  if (typeof WebAssembly === "undefined") {
+    throw new Error("WebAssembly unsupported in this browser");
+  }
+
   if (!kernelPromise) {
     kernelPromise = fetch(new URL("./kernel.wasm", import.meta.url))
       .then((res) => res.arrayBuffer())
