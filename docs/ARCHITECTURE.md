@@ -106,9 +106,18 @@ has a matching file in `tests/`. Notable patterns:
   jsdom doesn't implement them.
 - `tests/bars.test.ts` drives `renderBars` directly against a detached DOM
   node and asserts on the rendered markup/styles rather than pixels.
+- `tests/main.test.ts` mocks `runLadder`/`audio/sfx`/`lib/clipboard` and
+  drives the real click handlers against a mounted `#app` tree, covering
+  the wiring itself (previous-run tracking, mute toggle, copy button) —
+  distinct from `tests/bars.test.ts`, which covers `renderBars` in
+  isolation.
+- `tests/kernel.test.ts` instantiates the real compiled `kernel.wasm`
+  (not a mock) via Node's `WebAssembly`, to catch bugs in `buildRing`'s
+  actual shuffle logic that a mocked-kernel test can't see — this is what
+  caught the Fisher-Yates/Sattolo cycle-fragmentation bug.
 
-`main.ts` itself has no unit tests — it's thin DOM wiring exercised manually
-(see the design self-review process) and via the production build.
+Design self-review (see the design standard) and the production build cover
+the visual/manual side main.ts's wiring doesn't.
 
 ## Deployment
 
