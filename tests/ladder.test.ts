@@ -47,6 +47,21 @@ describe("runLadder", () => {
     expect(ok.map((r) => r.label)).toEqual(["Cache", "IndexedDB", "Network"]);
   });
 
+  it("stringifies a non-Error rejection reason instead of crashing", async () => {
+    // A tier could reject with a plain string/object (e.g. a DOMException-like
+    // value some browsers throw) rather than an Error instance.
+    vi.mocked(benchmarkCache).mockRejectedValue("disk quota exceeded");
+    vi.mocked(benchmarkRam).mockResolvedValue(5);
+    vi.mocked(benchmarkIndexedDb).mockResolvedValue(5_000_000);
+    vi.mocked(benchmarkNetwork).mockResolvedValue(50_000_000);
+
+    const ladder = await runLadder();
+
+    const cache = ladder.find((r) => r.label === "Cache")!;
+    expect(cache.error).toBe("disk quota exceeded");
+    expect(cache.nsPerAccess).toBeNull();
+  });
+
   it("places all-failed tiers after all successful ones", async () => {
     vi.mocked(benchmarkCache).mockRejectedValue(new Error("cache boom"));
     vi.mocked(benchmarkRam).mockResolvedValue(5);
