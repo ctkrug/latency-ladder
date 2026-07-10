@@ -1,7 +1,8 @@
 import { isMuted, playTick, primeAudio, setMuted } from "./audio/sfx";
 import { runLadder } from "./benchmarks";
 import type { LadderResult } from "./benchmarks";
-import { narrativeLine } from "./lib/format";
+import { copyText } from "./lib/clipboard";
+import { narrativeLine, shareText } from "./lib/format";
 import { renderBars } from "./ui/bars";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -68,6 +69,26 @@ button.addEventListener("click", async () => {
       );
       results.appendChild(narrative);
     }
+
+    const copyRow = document.createElement("div");
+    copyRow.className = "copy-row";
+
+    const copyButton = document.createElement("button");
+    copyButton.type = "button";
+    copyButton.className = "copy-button";
+    copyButton.textContent = "Copy result";
+
+    const copyStatus = document.createElement("span");
+    copyStatus.className = "copy-status";
+    copyStatus.setAttribute("aria-live", "polite");
+
+    copyButton.addEventListener("click", async () => {
+      const succeeded = await copyText(shareText(ladder));
+      copyStatus.textContent = succeeded ? "Copied!" : "Couldn't copy — select and copy manually.";
+    });
+
+    copyRow.append(copyButton, copyStatus);
+    results.appendChild(copyRow);
   } finally {
     button.disabled = false;
     button.textContent = "Measure again";
