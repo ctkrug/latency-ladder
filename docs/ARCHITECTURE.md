@@ -75,7 +75,7 @@ src/benchmarks/
   outlier handling or working-set tuning against real distributions rather
   than synthetic test arrays).
 src/lib/
-  stats.ts     trimmedMean / median — outlier-resistant reducers.
+  stats.ts     trimmedMean — the outlier-resistant reducer every tier uses.
   format.ts    formatDuration / formatCount / narrativeLine / shareText.
   motion.ts    prefersReducedMotion() — guards matchMedia for jsdom/old
                browsers.
