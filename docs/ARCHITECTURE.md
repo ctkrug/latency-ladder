@@ -66,6 +66,14 @@ src/benchmarks/
                               busted with a unique query string per trial.
   index.ts                     runLadder(): fans out the four tiers with
                                 Promise.allSettled and sorts the result.
+
+  Each tier module exports both a raw-samples function (`sampleCache`,
+  `sampleRam`, `sampleIndexedDb`, `sampleNetwork`) returning the untrimmed
+  per-trial array, and a `benchmark*` wrapper that reduces it with
+  `trimmedMean`. `runLadder` only calls the `benchmark*` wrappers; the raw
+  variants exist so trial data can be inspected directly (e.g. to validate
+  outlier handling or working-set tuning against real distributions rather
+  than synthetic test arrays).
 src/lib/
   stats.ts     trimmedMean / median — outlier-resistant reducers.
   format.ts    formatDuration / formatCount / narrativeLine / shareText.
