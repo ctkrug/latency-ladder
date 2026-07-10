@@ -100,6 +100,26 @@ describe("main app wiring", () => {
     expect(muteButton.getAttribute("aria-label")).toBe("Unmute sound");
   });
 
+  it("calls playTick with an incrementing step as each real bar lands", async () => {
+    // main.ts renders real bars (not mocked) so this exercises the actual
+    // renderBars <-> onBarLanded wiring, not just a mocked runLadder.
+    runLadder.mockResolvedValue(RUN_1);
+    await mountApp();
+
+    document.querySelector<HTMLButtonElement>("#measure")!.click();
+    await vi.waitFor(() => expect(document.querySelectorAll(".ladder-fill").length).toBe(2));
+
+    const fills = Array.from(document.querySelectorAll<HTMLElement>(".ladder-fill"));
+    fills.forEach((fill) => {
+      const event = new Event("transitionend") as Event & { propertyName: string };
+      Object.defineProperty(event, "propertyName", { value: "width" });
+      fill.dispatchEvent(event);
+    });
+
+    expect(playTick).toHaveBeenNthCalledWith(1, 0);
+    expect(playTick).toHaveBeenNthCalledWith(2, 1);
+  });
+
   it("copies the share text and reports success when the copy button is clicked", async () => {
     runLadder.mockResolvedValue(RUN_1);
     copyText.mockResolvedValue(true);
