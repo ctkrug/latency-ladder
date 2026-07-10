@@ -138,6 +138,28 @@ describe("renderBars", () => {
   });
 });
 
+describe("renderBars all-tiers-failed guard", () => {
+  afterEach(() => {
+    document.body.innerHTML = "";
+  });
+
+  it("renders every tier as an error row without throwing when all four fail", () => {
+    // minLog/maxLog fall back to 0/0 when there are no successful tiers to
+    // take a log10 of — this must not divide-by-zero or throw.
+    const allFailed: LadderResult[] = [
+      { label: "Cache", nsPerAccess: null, error: "WebAssembly unsupported in this browser" },
+      { label: "RAM", nsPerAccess: null, error: "WebAssembly unsupported in this browser" },
+      { label: "IndexedDB", nsPerAccess: null, error: "blocked" },
+      { label: "Network", nsPerAccess: null, error: "offline" },
+    ];
+    const c = container();
+
+    expect(() => renderBars(c, allFailed)).not.toThrow();
+    expect(c.querySelectorAll(".ladder-row--error")).toHaveLength(4);
+    expect(c.querySelectorAll(".ladder-fill")).toHaveLength(0);
+  });
+});
+
 describe("renderBars zero-latency guard", () => {
   afterEach(() => {
     document.body.innerHTML = "";
