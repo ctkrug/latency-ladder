@@ -29,7 +29,18 @@ in genuinely different orders of magnitude on real hardware.
       (A headless-Chromium run in this dev VM measured an 89x gap, but the
       story explicitly calls for real-hardware verification the sandbox
       here can't provide — leave unchecked until confirmed on real
-      hardware.)
+      hardware. Since that measurement, fixed a real bug in
+      `assembly/index.ts`'s `buildRing`: it used plain Fisher-Yates, which
+      can fragment the ring into disjoint sub-cycles rather than one cycle
+      touching every slot — with the fixed production seed the RAM tier's
+      chase, always starting at index 0, only walked 45% of its intended
+      64MB working set (~30MB). Switched to Sattolo's algorithm to
+      guarantee a single full cycle; see `tests/kernel.test.ts`, which
+      exercises the real compiled `kernel.wasm` and fails against the
+      pre-fix kernel. Post-fix, repeat headless-Chromium runs in this
+      sandbox measure the RAM/cache ratio at 86x-116x — still needs
+      real-hardware confirmation, but the fix removes a real source of
+      inaccuracy either way.)
 - [ ] Reducing `CACHE_WORKING_SET_INTS` by half changes the cache-tier
       result by less than 20% (confirms it's cache-resident, not
       accidentally spilling to a slower tier already). (Raised `TRIALS`
