@@ -21,6 +21,17 @@ function clampPct(pct: number): number {
   return Math.min(100, Math.max(0, pct));
 }
 
+// Coarse browser timer resolution (reduced for Spectre mitigations, or just
+// an extremely fast trial) can round a measurement down to exactly 0.
+// log10(0) is -Infinity, which would make every bar's width NaN — not just
+// the zero tier's — since minLog/range are shared across all bars. Floor at
+// 1ns, the smallest unit formatDuration renders, before taking a log.
+const MIN_NS_FOR_LOG = 1;
+
+function logNs(ns: number): number {
+  return Math.log10(Math.max(ns, MIN_NS_FOR_LOG));
+}
+
 /** Renders `results` as a set of log-scale horizontal bars into `container`.
  * Bar width is proportional to log10(nsPerAccess) so cache/RAM/IndexedDB/
  * network — which span roughly nine orders of magnitude — are all
@@ -32,7 +43,7 @@ export function renderBars(container: HTMLElement, results: LadderResult[], opti
   if (results.length === 0) return;
 
   const ok = results.filter((r) => r.error === null);
-  const logValues = ok.map((r) => Math.log10(r.nsPerAccess!));
+  const logValues = ok.map((r) => logNs(r.nsPerAccess!));
   const minLog = logValues.length ? Math.min(...logValues) : 0;
   const maxLog = logValues.length ? Math.max(...logValues) : 0;
   const range = maxLog - minLog || 1;
@@ -62,7 +73,7 @@ export function renderBars(container: HTMLElement, results: LadderResult[], opti
     }
 
     row.className = "ladder-row";
-    const pct = ((Math.log10(result.nsPerAccess!) - minLog) / range) * 100;
+    const pct = ((logNs(result.nsPerAccess!) - minLog) / range) * 100;
 
     const label = document.createElement("span");
     label.className = "ladder-label";
@@ -94,7 +105,7 @@ export function renderBars(container: HTMLElement, results: LadderResult[], opti
 
     const previous = options.previous?.find((p) => p.label === result.label && p.error === null);
     if (previous) {
-      const prevPct = clampPct(((Math.log10(previous.nsPerAccess!) - minLog) / range) * 100);
+      const prevPct = clampPct(((logNs(previous.nsPerAccess!) - minLog) / range) * 100);
       const marker = document.createElement("span");
       marker.className = "ladder-marker";
       marker.style.left = `${prevPct}%`;
