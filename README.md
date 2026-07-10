@@ -19,10 +19,10 @@ four disconnected numbers.
 ## How it measures
 
 - **Cache** — a pointer-chasing kernel compiled to WebAssembly (via AssemblyScript)
-  walks a randomized linked list sized to blow past L1/L2/L3, isolating true cache-miss
-  latency from JIT noise.
-- **RAM** — the same pointer-chase kernel at a working-set size larger than any
-  cache tier, forcing main-memory access.
+  walks a randomized linked list sized to stay resident in L1, isolating true
+  cache-hit latency from JIT noise.
+- **RAM** — the same pointer-chase kernel at a working-set size well past any
+  consumer last-level cache, forcing every access out to main memory.
 - **IndexedDB** — round-trip timing of real reads/writes against a scratch
   object store, warmed with an untimed round-trip first to exclude cold-open
   overhead from the measurement.
