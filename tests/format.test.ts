@@ -36,6 +36,16 @@ describe("narrativeLine", () => {
       "Your network round-trip is slower than 40,000 of your own RAM accesses.",
     );
   });
+
+  it("degrades to an infinity symbol rather than crashing when the faster tier measured 0", () => {
+    // A coarse timer can round an extremely fast trial down to exactly 0ns.
+    // The ratio is then Infinity, not NaN — toLocaleString renders it as
+    // "∞" instead of throwing or printing "NaN", which is a readable (if
+    // unusual) fallback rather than a broken narrative line.
+    expect(narrativeLine("network round-trip", 100_000_000, "cache accesses", 0)).toBe(
+      "Your network round-trip is slower than ∞ of your own cache accesses.",
+    );
+  });
 });
 
 describe("shareText", () => {
