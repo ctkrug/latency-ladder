@@ -119,6 +119,12 @@ has a matching file in `tests/`. Notable patterns:
 Design self-review (see the design standard) and the production build cover
 the visual/manual side main.ts's wiring doesn't.
 
+`npm run test:coverage` runs the suite under `@vitest/coverage-v8`, configured
+in `vitest.config.ts` to exclude `src/wasm/kernel.js`/`kernel.d.ts` — the
+generated AssemblyScript ESM bindings that `loader.ts` doesn't import (it
+fetches and instantiates `kernel.wasm` directly), so including them would
+only dilute the number with dead code.
+
 ## Deployment
 
 The Vite config sets `base: "./"` and all asset references are relative, so
