@@ -16,12 +16,3 @@ export function trimmedMean(values: number[], trim = 0.2): number {
 
   return kept.reduce((sum, v) => sum + v, 0) / kept.length;
 }
-
-export function median(values: number[]): number {
-  if (values.length === 0) throw new Error("median: values is empty");
-
-  const sorted = [...values].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-
-  return sorted.length % 2 === 0 ? (sorted[mid - 1]! + sorted[mid]!) / 2 : sorted[mid]!;
-}

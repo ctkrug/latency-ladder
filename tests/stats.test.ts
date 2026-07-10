@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { median, trimmedMean } from "../src/lib/stats";
+import { trimmedMean } from "../src/lib/stats";
 
 describe("trimmedMean", () => {
   it("drops outliers from both tails", () => {
@@ -24,15 +24,5 @@ describe("trimmedMean", () => {
 
   it("keeps the middle values when trim is just below the whole-array boundary", () => {
     expect(trimmedMean([1, 2, 3, 4, 5], 0.4)).toBeCloseTo(3, 5);
-  });
-});
-
-describe("median", () => {
-  it("returns the middle value for odd-length input", () => {
-    expect(median([5, 1, 3])).toBe(3);
-  });
-
-  it("averages the two middle values for even-length input", () => {
-    expect(median([1, 2, 3, 4])).toBe(2.5);
   });
 });
