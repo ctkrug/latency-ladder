@@ -11,6 +11,14 @@ export interface RenderBarsOptions {
    * finishes landing at its target width (immediately if motion is
    * reduced). Used to fire the per-bar landing sound. */
   onBarLanded?: (result: LadderResult) => void;
+  /** The prior run's results, if any. Matching tiers (by label, both
+   * successful) get a faint reference marker at their previous position
+   * plus a delta label showing the percent change. */
+  previous?: LadderResult[];
+}
+
+function clampPct(pct: number): number {
+  return Math.min(100, Math.max(0, pct));
 }
 
 /** Renders `results` as a set of log-scale horizontal bars into `container`.
@@ -84,12 +92,34 @@ export function renderBars(container: HTMLElement, results: LadderResult[], opti
       }
     }
 
+    const previous = options.previous?.find((p) => p.label === result.label && p.error === null);
+    if (previous) {
+      const prevPct = clampPct(((Math.log10(previous.nsPerAccess!) - minLog) / range) * 100);
+      const marker = document.createElement("span");
+      marker.className = "ladder-marker";
+      marker.style.left = `${prevPct}%`;
+      marker.title = `Previous run: ${formatDuration(previous.nsPerAccess!)}`;
+      track.appendChild(marker);
+    }
+
+    const valueCell = document.createElement("span");
+    valueCell.className = "ladder-value-cell";
+
     const value = document.createElement("span");
     value.className = "ladder-value";
     value.textContent = formatDuration(result.nsPerAccess!);
+    valueCell.appendChild(value);
+
+    if (previous) {
+      const pctChange = (result.nsPerAccess! / previous.nsPerAccess! - 1) * 100;
+      const delta = document.createElement("span");
+      delta.className = `ladder-delta ${pctChange >= 0 ? "ladder-delta--up" : "ladder-delta--down"}`;
+      delta.textContent = `${pctChange >= 0 ? "+" : ""}${pctChange.toFixed(0)}%`;
+      valueCell.appendChild(delta);
+    }
 
     track.appendChild(fill);
-    row.append(label, track, value);
+    row.append(label, track, valueCell);
     list.appendChild(row);
   });
 
