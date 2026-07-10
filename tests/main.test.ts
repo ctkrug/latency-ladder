@@ -51,6 +51,25 @@ describe("main app wiring", () => {
     expect(document.querySelector(".ladder-narrative")!.textContent).toContain("slower than");
   });
 
+  it("ignores a rapid second click while a run is still in flight", async () => {
+    let resolveRun!: (value: LadderResult[]) => void;
+    runLadder.mockReturnValue(new Promise((resolve) => (resolveRun = resolve)));
+    await mountApp();
+
+    const button = document.querySelector<HTMLButtonElement>("#measure")!;
+    button.click();
+    // The button is synchronously disabled before the first await, so a
+    // same-tick second click (double-click, key-repeat) must not fire the
+    // handler again and start a second concurrent measurement.
+    button.click();
+    button.click();
+
+    resolveRun(RUN_1);
+    await vi.waitFor(() => expect(button.disabled).toBe(false));
+
+    expect(runLadder).toHaveBeenCalledTimes(1);
+  });
+
   it("re-enables the button and relabels it 'Measure again' after a run", async () => {
     runLadder.mockResolvedValue(RUN_1);
     await mountApp();
