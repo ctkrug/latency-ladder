@@ -3,12 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Latency Ladder</title>
+    <title>Latency Ladder — The memory hierarchy, measured on your machine</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta
       name="description"
-      content="Live micro-benchmarks of cache, RAM, IndexedDB, and network latency on your own device, animated on one logarithmic scale."
+      content="Live in-browser micro-benchmarks of your device's cache, RAM, IndexedDB, and network latency, animated on one logarithmic scale."
     />
+    <meta property="og:title" content="Latency Ladder — The memory hierarchy, measured on your machine" />
+    <meta
+      property="og:description"
+      content="See the real latency of your own device's cache, RAM, IndexedDB, and network, measured live and plotted on one log scale."
+    />
+    <meta property="og:type" content="website" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,7 +25,89 @@
   </head>
   <body>
     <div class="grid-bg" aria-hidden="true"></div>
+    <a
+      class="gh-link"
+      href="https://github.com/ctkrug/latency-ladder"
+      target="_blank"
+      rel="noopener"
+      aria-label="View Latency Ladder on GitHub"
+    >
+      <svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" aria-hidden="true">
+        <path
+          d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+        />
+      </svg>
+      <span>GitHub</span>
+    </a>
     <div id="app"></div>
+
+    <section class="about" aria-labelledby="about-heading">
+      <h2 id="about-heading">What Latency Ladder measures</h2>
+      <p>
+        Latency Ladder runs four live micro-benchmarks in your browser and plots them on a
+        single logarithmic scale: CPU cache, main memory (RAM), IndexedDB, and a network
+        round-trip. Instead of repeating the well-known "latency numbers every programmer
+        should know" chart, which was measured years ago on hardware you have never used, it
+        measures your own device right now and shows how many cache or RAM accesses fit inside
+        a single network round-trip.
+      </p>
+
+      <div class="faq">
+        <details>
+          <summary>What are the latency numbers every programmer should know?</summary>
+          <p>
+            The classic reference figures are roughly 1&nbsp;ns for an L1 cache reference,
+            100&nbsp;ns for a main-memory read, and 100&nbsp;µs to 100&nbsp;ms for storage and
+            network round-trips. They are a useful mental model, but they describe one machine
+            from over a decade ago. Latency Ladder measures the same tiers on your device so
+            you see your own numbers.
+          </p>
+        </details>
+        <details>
+          <summary>How much slower is RAM than CPU cache?</summary>
+          <p>
+            On most machines main memory is tens to a few hundred times slower than an L1 cache
+            hit. A cache read lands around a nanosecond; a RAM read that misses every cache is
+            usually 60 to 150&nbsp;ns. Run the ladder and the RAM bar shows your exact ratio
+            against cache.
+          </p>
+        </details>
+        <details>
+          <summary>How does it measure cache and RAM latency in a browser?</summary>
+          <p>
+            It uses a pointer-chasing kernel compiled to WebAssembly. Each read address depends
+            on the value just read, so hardware prefetchers and the JIT cannot hide the real
+            latency. The same kernel runs against a small working set that stays in L1 (cache)
+            and a large one that spills to main memory (RAM). Many trials are reduced with a
+            trimmed mean to absorb GC pauses and scheduling jitter.
+          </p>
+        </details>
+        <details>
+          <summary>Are the results accurate?</summary>
+          <p>
+            They are honest order-of-magnitude measurements, not lab-grade figures. Browser
+            timers are deliberately coarsened for security, and a shared tab is a noisy place to
+            benchmark, so treat the numbers as "your device, roughly" rather than a datasheet.
+            Repeated runs on the same machine stay within single-digit percent of each other.
+          </p>
+        </details>
+        <details>
+          <summary>Does it send my data anywhere?</summary>
+          <p>
+            No. Everything runs client-side. The network tier fetches a small file from this
+            page's own origin, and nothing you measure ever leaves your browser.
+          </p>
+        </details>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <a href="https://github.com/ctkrug/latency-ladder" target="_blank" rel="noopener">View source on GitHub</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://apps.charliekrug.com" target="_blank" rel="noopener">More by Charlie Krug → apps.charliekrug.com</a>
+    </footer>
+
     <script type="module" src="./src/main.ts"></script>
   </body>
 </html>
+</content>
