@@ -1,5 +1,6 @@
 import { isMuted, playTick, primeAudio, setMuted } from "./audio/sfx";
 import { runLadder } from "./benchmarks";
+import type { LadderResult } from "./benchmarks";
 import { narrativeLine } from "./lib/format";
 import { renderBars } from "./ui/bars";
 
@@ -18,6 +19,8 @@ app.innerHTML = `
 const button = app.querySelector<HTMLButtonElement>("#measure")!;
 const muteButton = app.querySelector<HTMLButtonElement>("#mute")!;
 const results = app.querySelector<HTMLDivElement>("#results")!;
+
+let previousLadder: LadderResult[] | null = null;
 
 function syncMuteButton(): void {
   const muted = isMuted();
@@ -43,11 +46,13 @@ button.addEventListener("click", async () => {
     const ladder = await runLadder();
     let landedCount = 0;
     renderBars(results, ladder, {
+      previous: previousLadder ?? undefined,
       onBarLanded: () => {
         playTick(landedCount);
         landedCount += 1;
       },
     });
+    previousLadder = ladder;
 
     const ok = ladder.filter((r) => r.error === null);
     if (ok.length >= 2) {
