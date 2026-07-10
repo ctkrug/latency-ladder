@@ -24,7 +24,8 @@ four disconnected numbers.
 - **RAM** — the same pointer-chase kernel at a working-set size larger than any
   cache tier, forcing main-memory access.
 - **IndexedDB** — round-trip timing of real reads/writes against a scratch
-  object store, median-of-many to smooth out browser scheduling jitter.
+  object store, warmed with an untimed round-trip first to exclude cold-open
+  overhead from the measurement.
 - **Network** — round-trip timing of small fetches against the page's own origin.
 
 All four run as many repeated trials on the main thread, then get reduced with a
