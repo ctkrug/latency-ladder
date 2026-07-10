@@ -15,6 +15,16 @@ describe("trimmedMean", () => {
   it("throws on empty input", () => {
     expect(() => trimmedMean([])).toThrow();
   });
+
+  it("throws instead of returning NaN when trim consumes the whole input", () => {
+    // trim=0.5 on a 4-element array cuts 2 from each tail, leaving nothing —
+    // previously this silently divided 0/0 into NaN.
+    expect(() => trimmedMean([1, 2, 3, 4], 0.5)).toThrow(/no values/);
+  });
+
+  it("keeps the middle values when trim is just below the whole-array boundary", () => {
+    expect(trimmedMean([1, 2, 3, 4, 5], 0.4)).toBeCloseTo(3, 5);
+  });
 });
 
 describe("median", () => {
