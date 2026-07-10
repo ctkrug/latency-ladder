@@ -52,6 +52,42 @@ h1 {
   gap: var(--space-4);
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mute-toggle {
+  font-size: 1.25rem;
+  line-height: 1;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    transform 150ms ease-out,
+    box-shadow 150ms ease-out,
+    background 150ms ease-out;
+}
+
+.mute-toggle:hover {
+  background: var(--surface-raised);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.25);
+}
+
+.mute-toggle:active {
+  transform: translateY(1px);
+}
+
+.mute-toggle:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
 .measure-button {
   font: inherit;
   font-weight: 600;
