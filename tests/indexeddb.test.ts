@@ -1,6 +1,6 @@
 import "fake-indexeddb/auto";
 import { beforeEach, describe, expect, it } from "vitest";
-import { benchmarkIndexedDb } from "../src/benchmarks/indexeddb";
+import { benchmarkIndexedDb, sampleIndexedDb } from "../src/benchmarks/indexeddb";
 
 describe("benchmarkIndexedDb", () => {
   beforeEach(() => {
@@ -13,6 +13,12 @@ describe("benchmarkIndexedDb", () => {
     const ns = await benchmarkIndexedDb();
     expect(ns).toBeGreaterThan(0);
     expect(Number.isFinite(ns)).toBe(true);
+  });
+
+  it("sampleIndexedDb returns one raw sample per trial", async () => {
+    const samples = await sampleIndexedDb();
+    expect(samples.length).toBeGreaterThan(0);
+    samples.forEach((s) => expect(Number.isFinite(s)).toBe(true));
   });
 
   it("reuses the existing object store on a second run without erroring", async () => {

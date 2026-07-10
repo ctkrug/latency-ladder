@@ -38,8 +38,9 @@ function get(db: IDBDatabase, key: string): Promise<unknown> {
 }
 
 /** Round-trips a small payload through a real object store `TRIALS` times
- * and returns the trimmed-mean read latency in nanoseconds. */
-export async function benchmarkIndexedDb(): Promise<number> {
+ * and returns the raw per-trial read latencies in nanoseconds, before
+ * outlier trimming. */
+export async function sampleIndexedDb(): Promise<number[]> {
   const db = await openDb();
   const payload = { probe: true, at: 0 };
 
@@ -59,8 +60,12 @@ export async function benchmarkIndexedDb(): Promise<number> {
       await get(db, key);
       samplesNs.push((performance.now() - start) * 1_000_000);
     }
-    return trimmedMean(samplesNs);
+    return samplesNs;
   } finally {
     db.close();
   }
+}
+
+export async function benchmarkIndexedDb(): Promise<number> {
+  return trimmedMean(await sampleIndexedDb());
 }
