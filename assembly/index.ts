@@ -26,12 +26,17 @@ export function buildRing(bufPtr: usize, size: i32, seed: i32): void {
     store<i32>(bufPtr + (<usize>i << 2), i);
   }
 
-  // Fisher-Yates shuffle using xorshift32.
+  // Sattolo's algorithm, not plain Fisher-Yates: `j` is drawn from [0, i)
+  // rather than [0, i], which excludes the self-swap that lets Fisher-Yates
+  // land on a fixed point. That guarantees the result is a single cycle
+  // touching every slot, not a permutation that may fragment into many
+  // disjoint sub-cycles (whose first one, from index 0, could cover a small
+  // fraction of `size` — silently shrinking the intended working set).
   for (let i: i32 = size - 1; i > 0; i--) {
     state ^= state << 13;
     state ^= state >> 17;
     state ^= state << 5;
-    const j: i32 = (state < 0 ? -state : state) % (i + 1);
+    const j: i32 = (state < 0 ? -state : state) % i;
 
     const tmp: i32 = load<i32>(bufPtr + (<usize>i << 2));
     store<i32>(bufPtr + (<usize>i << 2), load<i32>(bufPtr + (<usize>j << 2)));
