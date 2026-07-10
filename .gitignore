@@ -1,6 +1,7 @@
 node_modules/
 dist/
 build/
+src/wasm/kernel.*
 *.wasm.map
 .DS_Store
 *.log
