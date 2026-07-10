@@ -5,6 +5,10 @@ const STORE_NAME = "scratch";
 const TRIALS = 20;
 
 function openDb(): Promise<IDBDatabase> {
+  if (typeof indexedDB === "undefined") {
+    return Promise.reject(new Error("IndexedDB unsupported in this browser"));
+  }
+
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, 1);
     req.onupgradeneeded = () => {
