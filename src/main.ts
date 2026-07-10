@@ -8,8 +8,16 @@ import { renderBars } from "./ui/bars";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
 app.innerHTML = `
-  <h1>Latency Ladder</h1>
-  <p>Live-measured cache, RAM, IndexedDB, and network latency — on your device, right now.</p>
+  <div class="wordmark">
+    <svg class="wordmark-glyph" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+      <rect x="1" y="21" width="5" height="6" rx="1.5" fill="currentColor" />
+      <rect x="8" y="15" width="5" height="12" rx="1.5" fill="currentColor" />
+      <rect x="15" y="9" width="5" height="18" rx="1.5" fill="currentColor" />
+      <rect x="22" y="4" width="1.8" height="23" rx="0.9" fill="currentColor" opacity="0.5" />
+    </svg>
+    <h1>Latency <span class="wordmark-accent">Ladder</span></h1>
+  </div>
+  <p class="tagline">Live-measured cache, RAM, IndexedDB, and network latency — on your device, right now.</p>
   <div class="controls">
     <button class="measure-button" id="measure">Measure me</button>
     <button class="mute-toggle" id="mute" type="button" aria-pressed="false" aria-label="Mute sound"></button>
