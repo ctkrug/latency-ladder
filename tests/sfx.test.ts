@@ -53,6 +53,27 @@ describe("mute persistence", () => {
   });
 });
 
+describe("primeAudio", () => {
+  it("does not throw when AudioContext is unavailable", () => {
+    // @ts-expect-error simulating a browser without WebAudio
+    delete window.AudioContext;
+    expect(() => sfx.primeAudio()).not.toThrow();
+  });
+
+  it("eagerly constructs the AudioContext so a later playTick reuses it", () => {
+    const ctor = vi.fn(() => new FakeAudioContext());
+    // @ts-expect-error test double constructor
+    window.AudioContext = ctor;
+
+    sfx.primeAudio();
+    expect(ctor).toHaveBeenCalledTimes(1);
+
+    sfx.playTick(0);
+    // getContext() short-circuits on the already-primed instance.
+    expect(ctor).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("playTick", () => {
   it("does not throw when AudioContext is unavailable", () => {
     // @ts-expect-error simulating a browser without WebAudio
