@@ -19,6 +19,59 @@ function container(): HTMLElement {
   return el;
 }
 
+describe("renderBars comparison marker", () => {
+  afterEach(() => {
+    document.body.innerHTML = "";
+  });
+
+  it("renders no marker/delta when there is no previous run", () => {
+    const c = container();
+    renderBars(c, OK);
+
+    expect(c.querySelectorAll(".ladder-marker")).toHaveLength(0);
+    expect(c.querySelectorAll(".ladder-delta")).toHaveLength(0);
+  });
+
+  it("renders a marker and a negative delta when the tier got faster", () => {
+    const c = container();
+    const previous: LadderResult[] = [{ label: "Cache", nsPerAccess: 2, error: null }];
+    renderBars(c, OK, { previous });
+
+    const rows = Array.from(c.querySelectorAll(".ladder-row"));
+    const cacheRow = rows.find((r) => r.querySelector(".ladder-label")?.textContent === "Cache")!;
+    expect(cacheRow.querySelector(".ladder-marker")).not.toBeNull();
+
+    const delta = cacheRow.querySelector(".ladder-delta")!;
+    // Cache went from 2ns to 1ns previously -> now half -> -50%.
+    expect(delta.textContent).toBe("-50%");
+    expect(delta.classList.contains("ladder-delta--down")).toBe(true);
+  });
+
+  it("renders a positive delta when the tier got slower", () => {
+    const c = container();
+    const previous: LadderResult[] = [{ label: "RAM", nsPerAccess: 50, error: null }];
+    renderBars(c, OK, { previous });
+
+    const rows = Array.from(c.querySelectorAll(".ladder-row"));
+    const ramRow = rows.find((r) => r.querySelector(".ladder-label")?.textContent === "RAM")!;
+    const delta = ramRow.querySelector(".ladder-delta")!;
+
+    // RAM went from 50ns to 100ns -> +100%.
+    expect(delta.textContent).toBe("+100%");
+    expect(delta.classList.contains("ladder-delta--up")).toBe(true);
+  });
+
+  it("skips the marker for a tier missing from the previous run", () => {
+    const c = container();
+    const previous: LadderResult[] = [{ label: "Cache", nsPerAccess: 2, error: null }];
+    renderBars(c, OK, { previous });
+
+    const rows = Array.from(c.querySelectorAll(".ladder-row"));
+    const ramRow = rows.find((r) => r.querySelector(".ladder-label")?.textContent === "RAM")!;
+    expect(ramRow.querySelector(".ladder-marker")).toBeNull();
+  });
+});
+
 describe("renderBars", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
