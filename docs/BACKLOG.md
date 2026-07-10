@@ -32,7 +32,15 @@ in genuinely different orders of magnitude on real hardware.
       hardware.)
 - [ ] Reducing `CACHE_WORKING_SET_INTS` by half changes the cache-tier
       result by less than 20% (confirms it's cache-resident, not
-      accidentally spilling to a slower tier already).
+      accidentally spilling to a slower tier already). (Raised `TRIALS`
+      12→24 in `src/benchmarks/cache.ts` after headless-Chromium runs
+      against the dev server showed 12 trials let a single scheduler
+      stall dominate the trimmed mean — full-vs-half deltas up to 44%
+      between otherwise-identical repeats. At 24 trials, isolated repeats
+      landed at 5.6%/7.8%/0% delta, but this sandbox is a shared/
+      virtualized VM and an unlucky run still occasionally spikes past
+      20% — leave unchecked until confirmed on real, non-virtualized
+      hardware, same caveat as the criterion above.)
 
 ### [x] 1.3 IndexedDB tier accuracy
 Harden the round-trip measurement against first-run/cold-database skew.
@@ -68,15 +76,34 @@ Validate the trimmed-mean reducer against actual benchmark trial data,
 not just the synthetic arrays in `tests/stats.test.ts`.
 - [ ] Logging one real run's raw per-trial samples for each tier shows the
       trimmed mean differs from the raw mean by less than 2x in either
-      direction (catches a mis-tuned trim fraction).
+      direction (catches a mis-tuned trim fraction). (Added `sampleCache`/
+      `sampleRam`/`sampleIndexedDb`/`sampleNetwork` — raw-samples exports
+      alongside each `benchmark*` — and logged real per-trial data via
+      headless-Chromium runs against the dev server. RAM, IndexedDB, and
+      Network samples hold this bound most runs; Cache and, occasionally,
+      Network do not — a single rare scheduler stall in this shared VM can
+      inflate one trial 10-100x, which the trim correctly excludes from the
+      trimmed mean but by definition drags the raw mean far from it. That's
+      expected reducer behavior, not a mistuned fraction, but this sandbox's
+      VM jitter is heavier than a real device would see — leave unchecked
+      pending a run on real, non-virtualized hardware.)
 - [ ] Trial counts are high enough that the trimmed mean is stable: two
       back-to-back computations of the trimmed mean over two random
-      half-splits of the same trial set differ by less than 15%.
+      half-splits of the same trial set differ by less than 15%. (Same
+      headless-Chromium runs: RAM and IndexedDB split-stability held
+      comfortably (<10%); Cache and Network occasionally exceeded 15% on a
+      run that hit one of the VM stalls above. Leave unchecked for the same
+      reason — needs confirming on real hardware, where those stalls should
+      be far rarer.)
 
-### [ ] 2.2 Repeatability across runs
-- [ ] Clicking "measure again" twice in a row on the same device produces
+### [x] 2.2 Repeatability across runs
+- [x] Clicking "measure again" twice in a row on the same device produces
       results for each tier within the same order of magnitude (ratio
       between the two runs' values for a given tier is between 0.3x-3x).
+      (Verified with headless-Chromium runs against the dev server calling
+      `runLadder()` twice back-to-back, 3 separate attempts: all four tiers'
+      run-to-run ratios landed between 0.49x-2.08x every time, comfortably
+      inside the 0.3x-3x bound.)
 
 ### [x] 2.3 Graceful degradation
 Handle missing/blocked browser APIs without crashing the page.
