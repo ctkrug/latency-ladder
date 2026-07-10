@@ -27,8 +27,9 @@ four disconnected numbers.
   object store, median-of-many to smooth out browser scheduling jitter.
 - **Network** — round-trip timing of small fetches against the page's own origin.
 
-All four run as repeated trials in a Web Worker so the UI thread stays responsive,
-then get reduced to a robust (trimmed-median) estimate before rendering.
+All four run as many repeated trials on the main thread, then get reduced with a
+trimmed mean (drop the top/bottom 20% before averaging) to smooth out GC pauses
+and scheduling jitter before rendering.
 
 ## Stack
 
@@ -38,17 +39,20 @@ then get reduced to a robust (trimmed-median) estimate before rendering.
 - **Vite** for dev/build tooling, output as a single static bundle.
 - **Vitest** for unit tests.
 
-## Planned features
+## Features
 
-- [ ] Pointer-chase WASM kernel with configurable working-set size
-- [ ] Cache/RAM/IndexedDB/network benchmark runners with outlier-resistant reduction
-- [ ] Logarithmic-scale animated bar chart, bars settle in measured order
-- [ ] "X is slower than Y of your own Z" narrative line generated from live numbers
-- [ ] Re-run / compare-to-last-run
-- [ ] Shareable result card
+- [x] Pointer-chase WASM kernel with configurable working-set size
+- [x] Cache/RAM/IndexedDB/network benchmark runners with outlier-resistant reduction
+- [x] Logarithmic-scale animated bar chart, bars settle in measured order
+- [x] "X is slower than Y of your own Z" narrative line generated from live numbers
+- [x] Re-run / compare-to-last-run (faint reference marker + delta per tier)
+- [x] Shareable result card (copy to clipboard)
+- [x] Synthesized WebAudio bar-landing ticks with a persisted mute toggle
+- [x] Graceful degradation when WebAssembly/IndexedDB/network is unavailable
 
-See [`docs/VISION.md`](docs/VISION.md) for the full design rationale and
-[`docs/BACKLOG.md`](docs/BACKLOG.md) for the build plan.
+See [`docs/VISION.md`](docs/VISION.md) for the full design rationale,
+[`docs/DESIGN.md`](docs/DESIGN.md) for the visual direction, and
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the module map and data flow.
 
 ## Development
 
