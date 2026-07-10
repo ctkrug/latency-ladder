@@ -10,6 +10,7 @@
     "build": "npm run build:wasm && tsc -p tsconfig.json --noEmit && vite build",
     "build:wasm": "asc assembly/index.ts --target release --outFile src/wasm/kernel.wasm --bindings esm",
     "preview": "vite preview",
+    "pretest": "npm run build:wasm",
     "test": "vitest run",
     "test:watch": "vitest"
   },
