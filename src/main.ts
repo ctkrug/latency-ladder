@@ -33,7 +33,7 @@ let previousLadder: LadderResult[] | null = null;
 
 function syncMuteButton(): void {
   const muted = isMuted();
-  muteButton.textContent = muted ? "🔇" : "🔊";
+  muteButton.innerHTML = `<span aria-hidden="true">${muted ? "🔇" : "🔊"}</span>`;
   muteButton.setAttribute("aria-pressed", String(muted));
   muteButton.setAttribute("aria-label", muted ? "Unmute sound" : "Mute sound");
 }
