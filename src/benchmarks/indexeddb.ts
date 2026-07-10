@@ -44,6 +44,12 @@ export async function benchmarkIndexedDb(): Promise<number> {
   const payload = { probe: true, at: 0 };
 
   try {
+    // Warm the connection with an untimed round-trip first: opening/creating
+    // the database is measurably slower than a subsequent get, and including
+    // it would dominate the trimmed mean.
+    await put(db, "warmup", payload);
+    await get(db, "warmup");
+
     const samplesNs: number[] = [];
     for (let i = 0; i < TRIALS; i++) {
       const key = `probe-${i}`;
