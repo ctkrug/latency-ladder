@@ -51,6 +51,23 @@ describe("mute persistence", () => {
     sfx.setMuted(false);
     expect(sfx.isMuted()).toBe(false);
   });
+
+  it("treats a throwing localStorage as unmuted rather than propagating", () => {
+    const getItem = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new DOMException("denied", "SecurityError");
+    });
+    expect(() => sfx.isMuted()).not.toThrow();
+    expect(sfx.isMuted()).toBe(false);
+    getItem.mockRestore();
+  });
+
+  it("swallows a write rejection so the toggle never throws (private mode)", () => {
+    const setItem = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("quota", "QuotaExceededError");
+    });
+    expect(() => sfx.setMuted(true)).not.toThrow();
+    setItem.mockRestore();
+  });
 });
 
 describe("primeAudio", () => {

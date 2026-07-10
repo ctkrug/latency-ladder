@@ -11,15 +11,26 @@ function getAudioContextCtor(): AudioContextCtor | null {
 let ctx: AudioContext | null = null;
 let lastTickAt = -Infinity;
 
-/** Reads the persisted mute preference; unmuted by default. */
+/** Reads the persisted mute preference; unmuted by default. Access is
+ * wrapped because reading localStorage can throw, not just be absent —
+ * Safari private mode and some locked-down embeddings reject it outright. */
 export function isMuted(): boolean {
   if (typeof localStorage === "undefined") return false;
-  return localStorage.getItem(MUTE_KEY) === "1";
+  try {
+    return localStorage.getItem(MUTE_KEY) === "1";
+  } catch {
+    return false;
+  }
 }
 
 export function setMuted(muted: boolean): void {
   if (typeof localStorage === "undefined") return;
-  localStorage.setItem(MUTE_KEY, muted ? "1" : "0");
+  try {
+    localStorage.setItem(MUTE_KEY, muted ? "1" : "0");
+  } catch {
+    // A write rejection (private mode, quota) shouldn't propagate out of a
+    // click handler and break the toggle; the preference just won't persist.
+  }
 }
 
 /** Creates the AudioContext on first call. Must be invoked from within a
