@@ -50,6 +50,19 @@ describe("copyText", () => {
     expect(await copyText("hello")).toBe(false);
   });
 
+  it("reports failure without throwing when execCommand itself throws", async () => {
+    // Some environments (sandboxed iframes, older Safari) throw a
+    // SecurityError from execCommand rather than returning false.
+    vi.stubGlobal("navigator", { ...navigator, clipboard: undefined });
+    document.execCommand = vi.fn().mockImplementation(() => {
+      throw new DOMException("document.execCommand() was denied", "SecurityError");
+    });
+
+    await expect(copyText("hello")).resolves.toBe(false);
+    // The textarea is still cleaned up even though execCommand threw.
+    expect(document.querySelector("textarea")).toBeNull();
+  });
+
   it("removes the temporary textarea after the fallback runs", async () => {
     vi.stubGlobal("navigator", { ...navigator, clipboard: undefined });
     document.execCommand = vi.fn().mockReturnValue(true);
