@@ -152,3 +152,9 @@ h1 {
   font-weight: 600;
   color: var(--accent-support);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .ladder-fill {
+    transition: none;
+  }
+}
