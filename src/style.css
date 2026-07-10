@@ -41,6 +41,45 @@ h1 {
   letter-spacing: 0.02em;
 }
 
+.grid-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--bg);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0, 229, 255, 0.07) 0 1px, transparent 1px 48px),
+    repeating-linear-gradient(90deg, rgba(0, 229, 255, 0.07) 0 1px, transparent 1px 48px);
+  background-size: 48px 48px;
+  animation: grid-drift 90s linear infinite;
+}
+
+@keyframes grid-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 480px 480px;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-bg {
+    background-size: 32px 32px;
+  }
+
+  @keyframes grid-drift {
+    to {
+      background-position: 320px 320px;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-bg {
+    animation: none;
+  }
+}
+
 #app {
   display: flex;
   flex-direction: column;
