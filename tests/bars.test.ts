@@ -137,3 +137,28 @@ describe("renderBars", () => {
     expect(landed).toEqual(["Cache"]);
   });
 });
+
+describe("renderBars zero-latency guard", () => {
+  afterEach(() => {
+    document.body.innerHTML = "";
+  });
+
+  it("never produces a NaN bar width when a tier reports nsPerAccess: 0", () => {
+    // Coarse timer resolution (or an implausibly fast trial) can round a
+    // measurement down to exactly 0; log10(0) is -Infinity, which would
+    // otherwise poison every bar's width via the shared min/max range, not
+    // just the zero tier's.
+    const withZero: LadderResult[] = [
+      { label: "Cache", nsPerAccess: 0, error: null },
+      { label: "RAM", nsPerAccess: 100, error: null },
+      { label: "IndexedDB", nsPerAccess: 5_000_000, error: null },
+    ];
+    const c = container();
+    renderBars(c, withZero);
+
+    const widths = Array.from(c.querySelectorAll<HTMLElement>(".ladder-fill")).map(
+      (fill) => fill.dataset.targetWidth,
+    );
+    widths.forEach((w) => expect(w).not.toContain("NaN"));
+  });
+});
