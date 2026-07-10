@@ -23,17 +23,20 @@ button.addEventListener("click", async () => {
     const ladder = await runLadder();
     renderBars(results, ladder);
 
-    const slowest = ladder[ladder.length - 1]!;
-    const fastest = ladder[0]!;
-    const narrative = document.createElement("p");
-    narrative.className = "ladder-narrative";
-    narrative.textContent = narrativeLine(
-      slowest.label.toLowerCase(),
-      slowest.nsPerAccess,
-      `${fastest.label.toLowerCase()} accesses`,
-      fastest.nsPerAccess,
-    );
-    results.appendChild(narrative);
+    const ok = ladder.filter((r) => r.error === null);
+    if (ok.length >= 2) {
+      const slowest = ok[ok.length - 1]!;
+      const fastest = ok[0]!;
+      const narrative = document.createElement("p");
+      narrative.className = "ladder-narrative";
+      narrative.textContent = narrativeLine(
+        slowest.label.toLowerCase(),
+        slowest.nsPerAccess!,
+        `${fastest.label.toLowerCase()} accesses`,
+        fastest.nsPerAccess!,
+      );
+      results.appendChild(narrative);
+    }
   } finally {
     button.disabled = false;
     button.textContent = "Measure again";

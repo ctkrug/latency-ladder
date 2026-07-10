@@ -135,6 +135,16 @@ h1 {
   text-align: right;
 }
 
+.ladder-row--error {
+  grid-template-columns: 90px 1fr;
+}
+
+.ladder-error {
+  color: var(--danger);
+  font-size: 0.9rem;
+  text-align: left;
+}
+
 .ladder-narrative {
   margin-top: var(--space-4);
   font-family: var(--font-display);
